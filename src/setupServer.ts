@@ -7,6 +7,7 @@ import compression from "compression";
 import cookieSession from "cookie-session";
 import HTTP_STATUS from "http-status-codes";
 import "express-async-errors";
+import { config } from "./config";
 
 const SERVER_PORT = 5000;
 
@@ -39,8 +40,8 @@ export class Server {
     app.use(
       cookieSession({
         name: "session",
-        keys: ["key1", "key2"],
-        secure: true,
+        keys: [config.SECRET_KEY_ONE!, config.SECRET_KEY_TWO!],
+        secure: config.NODE_ENV !== "development",
         maxAge: 24 * 60 * 60 * 1000 * 7,
       })
     );
