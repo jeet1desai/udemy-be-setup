@@ -1,6 +1,6 @@
-import express from "express";
+import express from 'express';
 
-export default (app: express.Application): void => {
+export default (_app: express.Application): void => {
   const routes = () => {};
   routes();
 };

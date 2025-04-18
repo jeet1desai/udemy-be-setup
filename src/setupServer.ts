@@ -1,22 +1,22 @@
-import express from "express";
-import http from "http";
-import cors from "cors";
-import helmet from "helmet";
-import hpp from "hpp";
-import compression from "compression";
-import cookieSession from "cookie-session";
-import { Server as SocketIOServer } from "socket.io";
-import { createClient } from "redis";
-import { createAdapter } from "@socket.io/redis-adapter";
-import HTTP_STATUS from "http-status-codes";
-import Logger from "bunyan";
-import "express-async-errors";
-import { config } from "./config";
-import applicationRoutes from "./routes";
-import { CustomError, IErrorResponse } from "./shared/globals/helpers/error-handler";
+import express from 'express';
+import http from 'http';
+import cors from 'cors';
+import helmet from 'helmet';
+import hpp from 'hpp';
+import compression from 'compression';
+import cookieSession from 'cookie-session';
+import { Server as SocketIOServer } from 'socket.io';
+import { createClient } from 'redis';
+import { createAdapter } from '@socket.io/redis-adapter';
+import HTTP_STATUS from 'http-status-codes';
+import Logger from 'bunyan';
+import 'express-async-errors';
+import { config } from './config';
+import applicationRoutes from './routes';
+import { CustomError, IErrorResponse } from './shared/globals/helpers/error-handler';
 
 const SERVER_PORT = 5000;
-const log: Logger = config.createLogger("server");
+const log: Logger = config.createLogger('server');
 
 export class Server {
   private app: express.Application;
@@ -36,28 +36,28 @@ export class Server {
   private securityMiddleware(app: express.Application): void {
     app.use(
       cors({
-        origin: "*",
+        origin: '*',
         credentials: true,
         optionsSuccessStatus: 200,
-        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
       })
     );
     app.use(hpp());
     app.use(helmet());
     app.use(
       cookieSession({
-        name: "session",
+        name: 'session',
         keys: [config.SECRET_KEY_ONE!, config.SECRET_KEY_TWO!],
-        secure: config.NODE_ENV !== "development",
-        maxAge: 24 * 60 * 60 * 1000 * 7,
+        secure: config.NODE_ENV !== 'development',
+        maxAge: 24 * 60 * 60 * 1000 * 7
       })
     );
   }
 
   private standardMiddleware(app: express.Application): void {
     app.use(compression());
-    app.use(express.json({ limit: "50mb" }));
-    app.use(express.urlencoded({ limit: "50mb", extended: true }));
+    app.use(express.json({ limit: '50mb' }));
+    app.use(express.urlencoded({ limit: '50mb', extended: true }));
   }
 
   private routesMiddleware(app: express.Application): void {
@@ -65,7 +65,7 @@ export class Server {
   }
 
   private globalErrorHandler(app: express.Application): void {
-    app.all("*", (req: express.Request, res: express.Response) => {
+    app.all('*', (req: express.Request, res: express.Response) => {
       res.status(HTTP_STATUS.NOT_FOUND).json({ message: `${req.originalUrl} not found` });
     });
 
@@ -93,9 +93,9 @@ export class Server {
   private async createSocketIO(httpServer: http.Server): Promise<SocketIOServer> {
     const io: SocketIOServer = new SocketIOServer(httpServer, {
       cors: {
-        origin: "*",
-        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-      },
+        origin: '*',
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS']
+      }
     });
 
     const pubClient = createClient({ url: config.REDIS_HOST });
@@ -114,7 +114,7 @@ export class Server {
     });
   }
 
-  private socketIOConnections(io: SocketIOServer): void {}
+  private socketIOConnections(_io: SocketIOServer): void {}
 }
 
 export default Server;
