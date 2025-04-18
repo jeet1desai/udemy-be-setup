@@ -9,12 +9,14 @@ import { Server as SocketIOServer } from "socket.io";
 import { createClient } from "redis";
 import { createAdapter } from "@socket.io/redis-adapter";
 import HTTP_STATUS from "http-status-codes";
+import Logger from "bunyan";
 import "express-async-errors";
 import { config } from "./config";
 import applicationRoutes from "./routes";
 import { CustomError, IErrorResponse } from "./shared/globals/helpers/error-handler";
 
 const SERVER_PORT = 5000;
+const log: Logger = config.createLogger("server");
 
 export class Server {
   private app: express.Application;
@@ -68,6 +70,7 @@ export class Server {
     });
 
     app.use((error: IErrorResponse, _req: express.Request, res: express.Response, next: express.NextFunction) => {
+      log.error(error);
       if (error instanceof CustomError) {
         return res.status(error.code).json(error.serializeErrors());
       }
@@ -83,7 +86,7 @@ export class Server {
       this.startHttpServer(httpServer);
       this.socketIOConnections(socketIO);
     } catch (error) {
-      console.log(error);
+      log.error(error);
     }
   }
 
@@ -105,8 +108,9 @@ export class Server {
   }
 
   private startHttpServer(httpServer: http.Server): void {
+    log.info(`Server has started with process ${process.pid}`);
     httpServer.listen(SERVER_PORT, () => {
-      console.log(`Server is running on port ${SERVER_PORT}`);
+      log.info(`Server is running on port ${SERVER_PORT}`);
     });
   }
 

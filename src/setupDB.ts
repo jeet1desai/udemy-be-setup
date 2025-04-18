@@ -1,13 +1,16 @@
 import mongoose from "mongoose";
+import Logger from "bunyan";
 import { config } from "./config";
+
+const log: Logger = config.createLogger("database");
 
 export default () => {
   const connect = () => {
     mongoose
       .connect(config.DATABASE_URL!)
-      .then(() => console.log("Connected to MongoDB"))
+      .then(() => log.info("Connected to MongoDB"))
       .catch((error) => {
-        console.log(error);
+        log.error(error);
         return process.exit(1);
       });
   };
@@ -15,7 +18,7 @@ export default () => {
   connect();
 
   mongoose.connection.on("disconnected", () => {
-    console.log("Disconnected from MongoDB");
+    log.info("Disconnected from MongoDB");
     connect();
   });
 };
